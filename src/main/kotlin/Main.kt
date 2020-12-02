@@ -8,10 +8,14 @@ fun main(args: Array<String>) {
         val policyParts = split[0].split(' ')
         val policyOccurrence = policyParts[0].split('-').map { it.trim().toInt() }
         val policyLetter = policyParts[1][0]
-        val content = split[1]
+        val content = split[1].trimStart()
         //9-10 m: mmmmnxmmmwm
-        val count = content.count { it == policyLetter }
-        if(count >= policyOccurrence[0] && count<= policyOccurrence[1]) correctPasswords++
+
+        var count = 0
+        if(content[policyOccurrence[0]-1]==policyLetter) count++
+        if(content[policyOccurrence[1]-1]==policyLetter) count++
+
+        if(count==1) correctPasswords++
     }
     println(correctPasswords)
 
