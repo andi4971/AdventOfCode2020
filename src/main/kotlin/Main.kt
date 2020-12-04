@@ -1,27 +1,59 @@
 import java.io.File
 
 fun main(args: Array<String>) {
-    val lines = File("src/main/resources/input.txt").readLines().map { it.toCharArray() }
-    var xOffsets = arrayOf(1,3,5,7,1)
-    var yOffsets = arrayOf(1,1,1,1,2)
-    val treeCounters = mutableListOf<Int>()
-    for (i in xOffsets.indices)
-    {
-        var treeCounter = 0
-        var x = 0
+    val lines = File("src/main/resources/input.txt")
+            .readLines()
+            .joinToString { it }
+            .split(" ,")
+            .map { it.replace(",", "") }
 
-        for(line in 0..lines.size -(1+yOffsets[i]) step yOffsets[i]) {
-            x+=xOffsets[i]
-            if(x >= lines[0].size)
-            {
-                x -= lines[0].size
+    val regex = listOf("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid")
+            .associateWith { Regex("(?<key>${it}):(?<value>\\S*)") }
+
+
+    var parsedLines = mutableListOf<String>()
+    lines.forEach { line ->
+        var fieldsFound = 0
+        regex.forEach { if (it.value.containsMatchIn(line)) fieldsFound++ }
+        if (fieldsFound == 8) {
+            parsedLines.add(line)
+        } else if (fieldsFound == 7) {
+            if (!regex["cid"]!!.containsMatchIn(line)) {
+                parsedLines.add(line)
             }
-            if(lines[line+yOffsets[i]][x] == '#') treeCounter++
         }
-        treeCounters.add(treeCounter)
     }
+    var validLines = 0
+    val validEcls = listOf("amb", "blu", "brn", "gry", "grn", "hzl", "oth")
+    parsedLines.forEach { line ->
 
-    println(treeCounters.reduce{acc, i -> acc * i})
+        var validFields = 0
+        var year = regex.getValue("byr").find(line)!!.groupValues[2].toInt()
+        if (year in 1920..2002) validFields++
+
+        year = regex.getValue("iyr").find(line)!!.groupValues[2].toInt()
+        if (year in 2010..2020) validFields++
+
+        year = regex.getValue("eyr").find(line)!!.groupValues[2].toInt()
+        if (year in 2020..2030) validFields++
+
+        val hgt = regex.getValue("hgt").find(line)!!.groupValues[2]
+        if (hgt.contains("cm")) {
+            if (hgt.replace("cm", "").toInt() in 150..193) validFields++
+        } else {
+            if (hgt.replace("in", "").toInt() in 59..76) validFields++
+        }
+
+        if(Regex("(?<key>${"hcl"}):(?<value>#(\\d|[a-z]){6})").containsMatchIn(line))validFields++
+
+        val ecl = regex.getValue("ecl").find(line)!!.groupValues[2]
+        if(validEcls.contains(ecl))validFields++
+
+        if(regex.getValue("pid").find(line)!!.groupValues[2].matches(Regex("\\A\\d{9}\\Z")))validFields++
+
+        if (validFields == 7) validLines++
+    }
+    println(validLines)
 }
 
 
