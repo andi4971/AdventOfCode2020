@@ -1,50 +1,33 @@
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayDeque
 
 fun main(args: Array<String>) {
-    val lines = File("src/main/resources/input.txt").readLines()
-        .map { it.split(" ") }
-    for (outerLoopCounter in lines.indices) {
-        if(lines[outerLoopCounter][0] == "acc") continue
+    val lines = File("src/main/resources/input.txt").readLines().map { it.toLong() }
+    val queue = ArrayDeque<Long>()
+    val initialLines = 25
+    val invalidNumber = 57195069
+    queue.addAll(lines.take(initialLines))
 
-        val copyList = lines.toMutableList()
-        var changed = false
-
-        if (lines[outerLoopCounter][0] == "jmp") {
-            copyList[outerLoopCounter] = listOf("nop", lines[outerLoopCounter][1])
-            changed = true
-        }
-        if(!changed && lines[outerLoopCounter][0] == "nop"){
-            copyList[outerLoopCounter] = listOf("jmp", lines[outerLoopCounter][1])
-        }
-        val erg = runProgram(copyList)
-        erg?.let { println(it) }
-    }
-}
-
-fun runProgram(lines: List<List<String>>): Int? {
-    var accumulator = 0
-    var i = 0
-    val visitedInstructions = mutableListOf<String>()
-    while (true) {
-        if(i==lines.size) return accumulator
-        var currLine = "$i ${lines[i][0]} ${lines[i][1]}"
-        if (visitedInstructions.contains(currLine)) {
-            return null
-        }
-        visitedInstructions.add(currLine)
-        when (lines[i][0]) {
-            "acc" -> {
-                val accInc = lines[i][1].toInt()
-                accumulator += accInc
-                i++
+    for (i in initialLines..lines.size) {
+        var currentNumber = lines[i]
+        val possibleProducts = mutableListOf<Long>()
+        queue.forEach { ele1 ->
+            queue.forEach { ele2 ->
+                if (ele1 != ele2) {
+                  val sum = ele1+ele2
+                    if(!possibleProducts.contains(sum))
+                    {
+                        possibleProducts.add(sum)
+                    }
+                }
             }
-            "jmp" -> {
-                val jumper = lines[i][1].toInt()
-                i += jumper
-            }
-            "nop" -> {
-                i++
-            }
+        }
+        if(possibleProducts.contains(currentNumber)){
+            queue.add(currentNumber)
+            queue.removeFirst()
+        }else{
+            println(currentNumber)
         }
     }
 }
