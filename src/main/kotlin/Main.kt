@@ -14,39 +14,111 @@ fun main(args: Array<String>) {
             for (j in lines[i].indices) {
                 var occupiedCounter = 0
                 //up
-                if (i - 1 >= 0 && lines[i - 1][j] == '#') {
-                    occupiedCounter++
+                for(x in i-1 downTo 0){
+                    if(lines[x][j] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[x][j] == 'L'){
+                        break
+                    }
                 }
 
                 //down
-                if (i + 1 < lines.size && lines[i + 1][j] == '#') {
-                    occupiedCounter++
+                for(x in i+1 until lines.size){
+                    if(lines[x][j] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[x][j] == 'L'){
+                        break
+                    }
                 }
 
                 //left
-                if (j - 1 >= 0 && lines[i][j - 1] == '#') {
-                    occupiedCounter++
+                for(x in j-1 downTo  0){
+                    if(lines[i][x] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[i][x] == 'L'){
+                        break
+                    }
                 }
+
                 //right
-                if (j + 1 < lines[i].size && lines[i][j + 1] == '#') {
-                    occupiedCounter++
+                for(x in j+1 until  lines[i].size){
+                    if(lines[i][x] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[i][x] == 'L'){
+                        break
+                    }
                 }
+
                 //diagonal
                 //upright
-                if (j + 1 < lines[i].size && i - 1 >= 0 && lines[i - 1][j + 1] == '#') occupiedCounter++
+                var tempj = j+1
+                for(x in i-1 downTo 0){
+                    if(tempj>= lines[x].size) break
+                    if(lines[x][tempj] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[x][tempj] == 'L'){
+                        break
+                    }
+                    tempj++
+                }
 
                 //upleft
-                if (j - 1 >= 0 && i - 1 >= 0 && lines[i - 1][j - 1] == '#') occupiedCounter++
+                tempj = j-1
+                for(x in i-1 downTo 0){
+                    if(tempj<0) break
+                    if(lines[x][tempj] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[x][tempj] == 'L'){
+                        break
+                    }
+                    tempj--
+                }
+
                 //downleft
-                if (j - 1 >= 0 && i + 1 < lines.size && lines[i + 1][j - 1] == '#') occupiedCounter++
+
+                tempj = j-1
+                for(x in i+1 until lines.size){
+                    if(tempj<0) break
+                    if(lines[x][tempj] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[x][tempj] == 'L'){
+                        break
+                    }
+                    tempj--
+                }
                 //downright
-                if (j + 1 < lines[i].size && i + 1 < lines.size && lines[i + 1][j + 1] == '#') occupiedCounter++
+                tempj = j+1
+                for(x in i+1 until lines.size){
+                    if(tempj>= lines[x].size) break
+                    if(lines[x][tempj] == '#'){
+                        occupiedCounter++
+                        break
+                    }
+                    if(lines[x][tempj] == 'L'){
+                        break
+                    }
+                    tempj++
+                }
 
                 if (lines[i][j] == 'L' && occupiedCounter == 0) {
                     futureState[i][j] = '#'
                     occupiedSeats++
                 }
-                if (lines[i][j] == '#' && occupiedCounter >= 4) {
+                if (lines[i][j] == '#' && occupiedCounter >= 5) {
                     futureState[i][j] = 'L'
                     occupiedSeats--
                 }
