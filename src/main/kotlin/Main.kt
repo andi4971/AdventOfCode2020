@@ -1,60 +1,65 @@
-import org.jgrapht.Graph
-import org.jgrapht.alg.shortestpath.AllDirectedPaths
-import org.jgrapht.graph.DefaultEdge
-import org.jgrapht.graph.SimpleDirectedGraph
 import java.io.File
-import java.lang.Exception
-import java.util.*
-import kotlin.collections.ArrayDeque
 
 fun main(args: Array<String>) {
-    var lines = File("src/main/resources/input.txt").readLines().map { it.toLong() }.sorted().toMutableList()
-    val z = 0L
-    lines.add(0, z)
-    lines.add(lines.maxOrNull()!! + 3)
-    val max = lines.maxOrNull()!!
-    val graph = SimpleDirectedGraph<Long,DefaultEdge>(DefaultEdge::class.java)
-    for (i in 0..lines.size-2) {
-        if(!graph.containsVertex(lines[i])){
-            graph.addVertex(lines[i])
-        }
-        if(!graph.containsVertex(lines[i+1])){
-            graph.addVertex(lines[i+1])
-        }
-        if(!graph.containsEdge(lines[i],lines[i+1]))
-        {
-            graph.addEdge(lines[i],lines[i+1])
-        }
+    var lines = File("src/main/resources/input.txt").readLines().map { it.toCharArray() }
 
-        if (lines[i]+1 == lines[i + 1]) {
-        }
-        if (lines[i]+2 == lines[i + 1]) {
+    var futureState: List<Array<Char>>
+    var previousOccupiedSeats = -1
+    var occupiedSeats = 0
+    while (occupiedSeats != previousOccupiedSeats) {
+        futureState = lines.map { it.toList().toTypedArray() }
+        previousOccupiedSeats = occupiedSeats
+        for (i in lines.indices) {
 
-        }
-        if (lines[i]+3 == lines[i + 1]) {
-        }
-        try {
-            if (lines[i]+2 == lines[i + 2]) {
-                if(!graph.containsVertex(lines[i+2])){
-                    graph.addVertex(lines[i+2])
+            for (j in lines[i].indices) {
+                var occupiedCounter = 0
+                //up
+                if (i - 1 >= 0 && lines[i - 1][j] == '#') {
+                    occupiedCounter++
                 }
-                if(!graph.containsEdge(lines[i],lines[i+2]))
-                {
-                    graph.addEdge(lines[i],lines[i+2])
+
+                //down
+                if (i + 1 < lines.size && lines[i + 1][j] == '#') {
+                    occupiedCounter++
+                }
+
+                //left
+                if (j - 1 >= 0 && lines[i][j - 1] == '#') {
+                    occupiedCounter++
+                }
+                //right
+                if (j + 1 < lines[i].size && lines[i][j + 1] == '#') {
+                    occupiedCounter++
+                }
+                //diagonal
+                //upright
+                if (j + 1 < lines[i].size && i - 1 >= 0 && lines[i - 1][j + 1] == '#') occupiedCounter++
+
+                //upleft
+                if (j - 1 >= 0 && i - 1 >= 0 && lines[i - 1][j - 1] == '#') occupiedCounter++
+                //downleft
+                if (j - 1 >= 0 && i + 1 < lines.size && lines[i + 1][j - 1] == '#') occupiedCounter++
+                //downright
+                if (j + 1 < lines[i].size && i + 1 < lines.size && lines[i + 1][j + 1] == '#') occupiedCounter++
+
+                if (lines[i][j] == 'L' && occupiedCounter == 0) {
+                    futureState[i][j] = '#'
+                    occupiedSeats++
+                }
+                if (lines[i][j] == '#' && occupiedCounter >= 4) {
+                    futureState[i][j] = 'L'
+                    occupiedSeats--
                 }
             }
-            if (lines[i]+3 == lines[i + 3]) {
-                if(!graph.containsVertex(lines[i+3])){
-                    graph.addVertex(lines[i+3])
-                }
-                if(!graph.containsEdge(lines[i],lines[i+3]))
-                {
-                    graph.addEdge(lines[i],lines[i+3])
-                }
-            }
-        }catch (e: Exception){
-
         }
+        lines = futureState.map { it.toCharArray() }
+
+        lines.forEach {
+            println(it.joinToString(""))
+        }
+        println()
+
     }
-    println(AllDirectedPaths(graph).getAllPaths(z,max,true,null).size)
+
+    println(occupiedSeats)
 }
