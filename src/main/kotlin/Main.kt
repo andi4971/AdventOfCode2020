@@ -1,62 +1,31 @@
 import java.io.File
 
 fun main(args: Array<String>) {
-    var lines = File("src/main/resources/input.txt").readLines()
+    var lines = File("src/main/resources/input.txt").readLines().first().split(',').map { it.toInt() }.toMutableList()
 
-    val inputMap = mutableListOf<Pair<String, List<String>>>()
+    var currentNumber = 0
+    var previousNumber = 0
+    val numberMap = hashMapOf<Int, Int>()
 
-    var currentMask = lines[0].substring(7)
-
-    var currentMems = mutableListOf<String>()
-    for (i in 1 until lines.size) {
-        if (lines[i].startsWith("mask")) {
-            inputMap.add(Pair(currentMask, currentMems))
-            currentMask = lines[i].substring(7)
-            currentMems = mutableListOf()
-        } else {
-            currentMems.add(lines[i])
+    val calledNumbers = mutableListOf<Int>()
+    for (turn in 1..30000000) {
+        previousNumber = currentNumber
+        if (lines.isNotEmpty()) {
+            currentNumber = lines.removeFirst()
+            numberMap[currentNumber] = turn
+            calledNumbers.add(currentNumber)
+            continue
         }
-    }
-    inputMap.add(Pair(currentMask, currentMems))
-
-    val memMap = hashMapOf<Long, String>()
-    var count = 0
-    inputMap.forEach { input ->
-        input.second.forEach {
-            val split = it.split(" = ")
-            val address =
-                split[0].substring(4, split[0].length - 1).toLong().toString(2).padStart(36, '0').toCharArray()
-
-            val tempVal = split[1].toLong().toString(2)
-            val value = tempVal.padStart(36, '0').toCharArray()
-
-            for (i in input.first.indices) {
-                if (input.first[i] == '1') {
-                    address[i] = '1'
-                }
-                if (input.first[i] == 'X') {
-                    address[i] = 'X'
-                }
-            }
-            val xCount = input.first.count { it == 'X' }
-            val possibilities = Math.pow(2.0,input.first.count { it == 'X' }.toDouble())
-            val possibleAddresses = mutableListOf<Long>()
-
-            for(i in 0..possibilities.toLong()){
-
-                val changeAddr = i.toString(2).padStart(xCount,'0')
-                var tempAddr = address.concatToString()
-                for(j in 0 until xCount){
-                    tempAddr = tempAddr.replaceFirst('X',changeAddr[j])
-                }
-                possibleAddresses.add(tempAddr.toLong(2))
-            }
-
-            possibleAddresses.forEach { addr ->
-                memMap[addr] = value.concatToString()
-            }
+        if(calledNumbers.count { it == previousNumber } == 1){
+            //first time called
+            currentNumber = 0
+            calledNumbers.add(currentNumber)
+        }else{
+            currentNumber = turn -1 - numberMap[previousNumber]!!
+            calledNumbers.add(currentNumber)
         }
+        numberMap[previousNumber] = turn-1
+        println((turn.toDouble()/30000000.0)*100)
     }
-    println(memMap.values.map { it.toLong(2) }.sum())
-
+    println(currentNumber)
 }
