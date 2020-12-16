@@ -7,25 +7,33 @@ fun main(args: Array<String>) {
     var previousNumber = 0
     val numberMap = hashMapOf<Int, Int>()
 
-    val calledNumbers = mutableListOf<Int>()
+    val calledNumbers = hashMapOf<Int, Int>()
     for (turn in 1..30000000) {
         previousNumber = currentNumber
         if (lines.isNotEmpty()) {
             currentNumber = lines.removeFirst()
             numberMap[currentNumber] = turn
-            calledNumbers.add(currentNumber)
+            calledNumbers[currentNumber] = 1
             continue
         }
-        if(calledNumbers.count { it == previousNumber } == 1){
+        if (calledNumbers[previousNumber] == 1) {
             //first time called
             currentNumber = 0
-            calledNumbers.add(currentNumber)
-        }else{
-            currentNumber = turn -1 - numberMap[previousNumber]!!
-            calledNumbers.add(currentNumber)
+            if (calledNumbers.containsKey(currentNumber)) {
+                calledNumbers[currentNumber] = calledNumbers[currentNumber]!! + 1
+            }else{
+                calledNumbers[currentNumber] = 1
+            }
+        } else {
+            currentNumber = turn - 1 - numberMap[previousNumber]!!
+            if (calledNumbers.containsKey(currentNumber)) {
+                calledNumbers[currentNumber] = calledNumbers[currentNumber]!! + 1
+            }else{
+                calledNumbers[currentNumber] = 1
+            }
         }
-        numberMap[previousNumber] = turn-1
-        println((turn.toDouble()/30000000.0)*100)
+        numberMap[previousNumber] = turn - 1
+        println((turn.toDouble() / 30000000.0) * 100)
     }
     println(currentNumber)
 }
